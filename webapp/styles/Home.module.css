@@ -1,0 +1,20 @@
+.container {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.convert button {
+  background: none #7ed214;
+  border: none;
+  box-shadow: none;
+  font-family: Roboto, sans-serif;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  width: 120px;
+  height: 37px;
+  margin-left: 5px;
+}

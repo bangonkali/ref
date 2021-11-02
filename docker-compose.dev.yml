@@ -1,0 +1,72 @@
+version: "3.1"
+
+services:
+  s3:
+    container_name: s3
+    image: quay.io/minio/minio:latest
+    command: ["server", "/var/s3/data", "--console-address", ":9001"]
+    restart: always
+    environment:
+      MINIO_ROOT_PASSWORD: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      MINIO_ROOT_USER: AKIAIOSFODNN7EXAMPLE
+    volumes:
+      - s3:/var/s3/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - ref
+
+  rabbitmq:
+    restart: always
+    container_name: rabbitmq
+    image: bitnami/rabbitmq:latest
+    ports:
+      - 5672:5672
+    networks:
+      - ref
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  mongo:
+    image: mongo
+    build:
+      context: ./mongo
+      dockerfile: Dockerfile
+    container_name: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo:/data/db
+    networks:
+      - ref
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    networks:
+      - ref
+
+volumes:
+  mongo: {}
+  s3: {}
+
+networks:
+  ref:
+    driver: bridge
